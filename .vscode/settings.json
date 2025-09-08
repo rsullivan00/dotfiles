@@ -1,0 +1,58 @@
+{
+  "editor.fontFamily": "JetBrainsMono NF, JetBrains Mono, Consolas, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 14,
+  "editor.lineNumbers": "relative",
+  "editor.rulers": [80],
+  "editor.renderWhitespace": "trailing",
+  "editor.trimAutoWhitespace": true,
+  "editor.minimap.enabled": false,
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorBlinking": "solid",
+  "editor.wordWrap": "off",
+  "editor.guides.bracketPairs": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.autoSave": "off",
+  // Removed deprecated search.usePCRE2
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.editor.enablePreview": false,
+  "workbench.startupEditor": "none",
+  "terminal.integrated.fontFamily": "JetBrainsMono NF",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.shellIntegration.enabled": true,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "vim.leader": "<space>",
+  "vim.useSystemClipboard": true,
+  "vim.hlsearch": true,
+  "vim.incsearch": true,
+  "vim.surround": true,
+  "vim.useCtrlKeys": true,
+  "vim.handleKeys": {
+    "<C-h>": false,
+    "<C-j>": false,
+    "<C-k>": false,
+    "<C-l>": false
+  },
+  "vim.normalModeKeyBindingsNonRecursive": [
+    { "before": ["0"], "after": ["^"] },
+    { "before": ["<leader>", "n"], "commands": [":workbench.files.action.focusFilesExplorer"] },
+    { "before": ["<leader>", "w"], "commands": [":workbench.action.files.save"] },
+    { "before": ["<esc>", "<esc>"], "commands": [":nohl"] }
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    { "before": ["<leader>", "w"], "commands": [":workbench.action.files.save"] }
+  ],
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["<tab>"],
+      "commands": ["selectNextSuggestion"],
+      "when": "suggestWidgetVisible"
+    }
+  ],
+  "[markdown]": { "editor.wordWrap": "wordWrapColumn", "editor.wordWrapColumn": 80 },
+  "csharp.format.enable": false,
+  "editor.formatOnSave": false,
+  "errorLens.enabled": true
+}

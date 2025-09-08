@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "vscodevim.vim",
+    "korekontrol.intelliterm",
+    "usernamehw.errorlens",
+    "ms-dotnettools.csharp",
+    "GitHub.copilot",
+    "ms-vscode.powershell",
+    "esbenp.prettier-vscode"
+  ]
+}
