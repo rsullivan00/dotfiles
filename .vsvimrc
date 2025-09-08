@@ -1,0 +1,42 @@
+" Leader key
+let mapleader = " "
+
+" UI basics
+set number
+set relativenumber
+set ignorecase
+set smartcase
+set hlsearch
+
+" Movement / editing tweaks
+nnoremap 0 ^
+
+" Save shortcut
+nnoremap <leader>w :w<CR>
+
+" Clear search highlight (double Escape)
+nnoremap <Esc><Esc> :nohlsearch<CR>
+
+" Split navigation (Ctrl-h/j/k/l)
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Quickly reload this file
+nnoremap <leader>so :source %<CR>
+
+" Surround (VsVim implements common surround motions if enabled in options)
+" Examples:
+ " NOTE: Plugin-specific Neovim mappings (NERDTree, ALE, fzf, deoplete) are intentionally omitted.
+ " Built-in Visual Studio tooling used for language features.
+"   ds"     -> delete surrounding quotes
+
+" Faster write & quit command aliases
+command W  w
+command Q  q
+command Wq wq
+command Qa qa
+
+" NOTE: Plugin-specific Neovim mappings (NERDTree, ALE, fzf, deoplete) are intentionally omitted.
+" Visual Studio tooling provides language features.

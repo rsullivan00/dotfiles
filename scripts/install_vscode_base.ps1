@@ -1,23 +1,23 @@
 <#
  Symlink VS Code user-level settings & keybindings to this repo's .vscode versions.
- Hard requirement: run elevated (Administrator) to guarantee symbolic link creation.
+ Elevation required to guarantee symbolic link creation.
 
  Usage:
    Start-Process powershell -Verb RunAs -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File "./scripts/install_vscode_base.ps1" -Backup'
 
  Flags:
-   -Backup  : backup existing non-symlink user files (timestamped). Optional.
-   -Remove  : remove symlinks and restore most recent backup if present.
+  -Backup  : back up existing non-symlink user files (timestamped)
+  -Remove  : remove the symlinks and restore the most recent backup if present
 
  Behavior:
-   - Only true symbolic links are created. No hard link / copy fallback.
-   - Fails fast if symlink cannot be created.
-   - Per-workspace .vscode/ settings still override user settings as normal.
+   - Only real symbolic links are created (no hard link / copy fallback)
+   - Fails fast if a symlink can't be created
+  - Per-workspace .vscode/ settings still override user settings
 
  Notes:
-   - Developer Mode usually permits non-admin symlinks, but this script enforces admin for determinism.
-   - Extension recommendations remain workspace-scoped.
-   - To verify elevation: script checks current security principal.
+  - Even though Developer Mode can allow non-admin symlinks, admin is enforced for determinism
+   - Extension recommendations remain workspace-scoped
+   - Elevation is verified by checking the current security principal
 #>
 param(
   [switch]$Backup,
