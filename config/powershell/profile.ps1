@@ -10,7 +10,14 @@ if (-not $dotfilesRoot) {
 
 # Devbox aliases
 function devboxterm {
-  & "$dotfilesRoot\scripts\connect_devbox_tunnel.ps1" @args
+  # Launch in WezTerm if available and not already in WezTerm
+  $wezterm = Get-Command wezterm -ErrorAction SilentlyContinue
+  $script = "$dotfilesRoot\scripts\connect_devbox_tunnel.ps1"
+  if ($wezterm -and -not $env:WEZTERM_PANE) {
+    & wezterm start -- powershell -NoExit -File $script
+  } else {
+    & $script @args
+  }
 }
 
 function devboxmount {

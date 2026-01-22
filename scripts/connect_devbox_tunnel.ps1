@@ -38,42 +38,59 @@ function Info($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Cyan }
 function Ok($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Green }
 function Err($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Red }
 
-# Check if logged in
-$loginStatus = devtunnel list 2>&1
-if ($loginStatus -match "not logged in") {
-  Info "Please log in to Dev Tunnels:"
-  devtunnel login
+# Check if tunnel is already running by testing SSH connection
+$tunnelRunning = $false
+$testConnection = Test-NetConnection -ComputerName localhost -Port 22 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+if ($testConnection.TcpTestSucceeded) {
+  $tunnelRunning = $true
+  Ok "Tunnel already running"
 }
 
-Info "Starting tunnel connection..."
+$tunnelJob = $null
+if (-not $tunnelRunning) {
+  # Check if logged in
+  $loginStatus = devtunnel list 2>&1
+  if ($loginStatus -match "not logged in") {
+    Info "Please log in to Dev Tunnels:"
+    devtunnel login
+  }
 
-# Start tunnel in background
-$tunnelJob = Start-Job -ScriptBlock {
-  param($name)
-  devtunnel connect $name
-} -ArgumentList $TunnelName
+  Info "Starting tunnel connection..."
 
-# Wait for tunnel to establish
-Start-Sleep -Seconds 2
+  # Start tunnel in background
+  $tunnelJob = Start-Job -ScriptBlock {
+    param($name)
+    devtunnel connect $name
+  } -ArgumentList $TunnelName
 
-# Check if tunnel started
-if ($tunnelJob.State -eq 'Failed') {
-  Err "Failed to connect to tunnel"
-  Receive-Job $tunnelJob
-  Remove-Job $tunnelJob
-  exit 1
+  # Wait for tunnel to establish
+  Start-Sleep -Seconds 2
+
+  # Check if tunnel started
+  if ($tunnelJob.State -eq 'Failed') {
+    Err "Failed to connect to tunnel"
+    Receive-Job $tunnelJob
+    Remove-Job $tunnelJob
+    exit 1
+  }
+
+  Ok "Tunnel connected"
 }
-
-Ok "Tunnel connected"
 
 if ($TunnelOnly) {
   Info "Tunnel running in background. Press Ctrl+C to disconnect."
   Info "SSH command: ssh -i $KeyFile $Username@localhost"
-  try {
-    Wait-Job $tunnelJob
-  } finally {
-    Stop-Job $tunnelJob -ErrorAction SilentlyContinue
-    Remove-Job $tunnelJob -ErrorAction SilentlyContinue
+  if ($tunnelJob) {
+    try {
+      Wait-Job $tunnelJob
+    } finally {
+      Stop-Job $tunnelJob -ErrorAction SilentlyContinue
+      Remove-Job $tunnelJob -ErrorAction SilentlyContinue
+    }
+  } else {
+    Info "Tunnel managed by service. Press Ctrl+C to exit."
+    # Just wait indefinitely
+    while ($true) { Start-Sleep -Seconds 60 }
   }
 } else {
   Info "Opening SSH session..."
@@ -83,10 +100,12 @@ if ($TunnelOnly) {
     # SSH to localhost (tunnel forwards to devbox)
     ssh -i $KeyFile "$Username@localhost"
   } finally {
-    # Clean up tunnel when SSH exits
-    Info "Closing tunnel..."
-    Stop-Job $tunnelJob -ErrorAction SilentlyContinue
-    Remove-Job $tunnelJob -ErrorAction SilentlyContinue
-    Ok "Disconnected"
+    # Clean up tunnel when SSH exits (only if we started it)
+    if ($tunnelJob) {
+      Info "Closing tunnel..."
+      Stop-Job $tunnelJob -ErrorAction SilentlyContinue
+      Remove-Job $tunnelJob -ErrorAction SilentlyContinue
+      Ok "Disconnected"
+    }
   }
 }
