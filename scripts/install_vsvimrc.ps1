@@ -19,7 +19,8 @@
 param(
   [switch]$Backup,
   [switch]$Remove,
-  [switch]$Force
+  [switch]$Force,
+  [switch]$SkipElevation
 )
 
 $ErrorActionPreference = 'Stop'
@@ -29,17 +30,19 @@ function Warn($m){ Write-Host "[VsVimRC] $m" -ForegroundColor Yellow }
 function Err($m){ Write-Host "[VsVimRC] $m" -ForegroundColor Red }
 
 # Elevation check & self-relaunch
-$currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
-$principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
-if(-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
-  Info 'Elevation required for reliable symlink creation. Relaunching as Administrator...'
-  $scriptPath = $MyInvocation.MyCommand.Path
-  $argList = @('-NoProfile','-ExecutionPolicy','Bypass','-File',"`"$scriptPath`"")
-  if($Backup){ $argList += '-Backup' }
-  if($Remove){ $argList += '-Remove' }
-  if($Force){ $argList += '-Force' }
-  Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList | Out-Null
-  exit 0
+if (-not $SkipElevation) {
+  $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+  $principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
+  if(-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
+    Info 'Elevation required for reliable symlink creation. Relaunching as Administrator...'
+    $scriptPath = $MyInvocation.MyCommand.Path
+    $argList = @('-NoProfile','-ExecutionPolicy','Bypass','-File',"`"$scriptPath`"")
+    if($Backup){ $argList += '-Backup' }
+    if($Remove){ $argList += '-Remove' }
+    if($Force){ $argList += '-Force' }
+    Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList | Out-Null
+    exit 0
+  }
 }
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
