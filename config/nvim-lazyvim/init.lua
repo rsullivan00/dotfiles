@@ -18,6 +18,7 @@ require("lazy").setup({
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- Import extras
     { import = "lazyvim.plugins.extras.coding.copilot" },
+    { import = "lazyvim.plugins.extras.lang.omnisharp" },
     -- Import custom plugins
     { import = "plugins" },
   },
