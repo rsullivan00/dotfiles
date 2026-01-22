@@ -89,6 +89,9 @@ if (-not $SkipInstall) {
 
   Info 'Installing WezTerm...'
   winget install --id wez.wezterm -e --accept-source-agreements --accept-package-agreements
+
+  # Refresh PATH so wezterm is available immediately
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 
 # Verify source config exists

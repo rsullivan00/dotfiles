@@ -12,7 +12,7 @@
 .PARAMETER DriveLetter
   Drive letter to use (default: D)
 
-.PARAMETER Host
+.PARAMETER SshHost
   SSH host (default: localhost, assumes tunnel is running)
 
 .PARAMETER Username
@@ -32,7 +32,7 @@
 param(
   [switch]$Unmount,
   [string]$DriveLetter = "D",
-  [string]$Host = "localhost",
+  [string]$SshHost = "localhost",
   [string]$Username = "sshuser",
   [string]$KeyFile = "$env:USERPROFILE\.ssh\id_ed25519_devbox",
   [string]$RemotePath,
@@ -82,7 +82,7 @@ $configHost = "devbox-mount"
 $sshConfigEntry = @"
 
 Host $configHost
-  HostName $Host
+  HostName $SshHost
   User $Username
   IdentityFile $KeyFile
   StrictHostKeyChecking no
