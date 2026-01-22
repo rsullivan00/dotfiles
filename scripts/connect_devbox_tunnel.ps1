@@ -6,29 +6,31 @@
   Starts the tunnel connection in the background, then opens SSH.
   When you exit SSH, the tunnel connection closes.
 
+  NOTE: Uses local 'sshuser' account for SSH because Windows OpenSSH
+  running as SYSTEM cannot authenticate domain accounts.
+
 .PARAMETER TunnelName
   Name of the tunnel (default: devbox)
 
 .PARAMETER Username
-  SSH username (default: current user)
+  SSH username (default: sshuser)
+
+.PARAMETER KeyFile
+  SSH private key file (default: ~/.ssh/id_ed25519_devbox)
 
 .PARAMETER TunnelOnly
   Only connect tunnel, don't open SSH
 
 .EXAMPLE
   .\scripts\connect_devbox_tunnel.ps1
-  .\scripts\connect_devbox_tunnel.ps1 -Username ricksullivan
+  .\scripts\connect_devbox_tunnel.ps1 -Username sshuser -KeyFile ~/.ssh/id_ed25519_devbox
 #>
 param(
   [string]$TunnelName = "devbox",
-  [string]$Username,
+  [string]$Username = "sshuser",
+  [string]$KeyFile = "$env:USERPROFILE\.ssh\id_ed25519_devbox",
   [switch]$TunnelOnly
 )
-
-# Default to domain\username for Windows domain accounts
-if (-not $Username) {
-  $Username = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-}
 
 $ErrorActionPreference = 'Stop'
 
@@ -66,7 +68,7 @@ Ok "Tunnel connected"
 
 if ($TunnelOnly) {
   Info "Tunnel running in background. Press Ctrl+C to disconnect."
-  Info "SSH command: ssh $Username@localhost"
+  Info "SSH command: ssh -i $KeyFile $Username@localhost"
   try {
     Wait-Job $tunnelJob
   } finally {
@@ -79,7 +81,7 @@ if ($TunnelOnly) {
 
   try {
     # SSH to localhost (tunnel forwards to devbox)
-    ssh "$Username@localhost"
+    ssh -i $KeyFile "$Username@localhost"
   } finally {
     # Clean up tunnel when SSH exits
     Info "Closing tunnel..."
