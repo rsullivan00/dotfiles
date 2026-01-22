@@ -28,6 +28,18 @@ function Ok($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Green }
 function Warn($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Yellow }
 function Err($m) { Write-Host "[DevTunnel] $m" -ForegroundColor Red }
 
+# Auto-elevate
+$currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+$principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+  Info "Elevation required. Relaunching as Administrator..."
+  $scriptPath = $MyInvocation.MyCommand.Path
+  $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$scriptPath`"", "-TunnelName", $TunnelName)
+  if ($Remove) { $argList += '-Remove' }
+  Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList -Wait
+  exit 0
+}
+
 $taskName = "DevTunnel-$TunnelName"
 
 if ($Remove) {

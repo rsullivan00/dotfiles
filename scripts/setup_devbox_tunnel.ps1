@@ -25,38 +25,31 @@ function Ok($m) { Write-Host "[DevboxSetup] $m" -ForegroundColor Green }
 function Warn($m) { Write-Host "[DevboxSetup] $m" -ForegroundColor Yellow }
 function Err($m) { Write-Host "[DevboxSetup] $m" -ForegroundColor Red }
 
-# Check if running as admin
+# Auto-elevate
 $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
-$isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+  Info "Elevation required. Relaunching as Administrator..."
+  $scriptPath = $MyInvocation.MyCommand.Path
+  $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$scriptPath`"", "-TunnelName", $TunnelName)
+  Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList -Wait
+  exit 0
+}
 
 # Install OpenSSH Server
 Info "Checking OpenSSH Server..."
 $sshCapability = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Server*'
 
 if ($sshCapability.State -ne 'Installed') {
-  if (-not $isAdmin) {
-    Err "OpenSSH Server not installed. Please run this script as Administrator."
-    exit 1
-  }
   Info "Installing OpenSSH Server..."
   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 }
 
 # Start and enable SSH service
 Info "Configuring SSH service..."
-if ($isAdmin) {
-  Start-Service sshd -ErrorAction SilentlyContinue
-  Set-Service sshd -StartupType Automatic
-  Ok "SSH service started and set to auto-start"
-} else {
-  $sshStatus = Get-Service sshd -ErrorAction SilentlyContinue
-  if ($sshStatus -and $sshStatus.Status -eq 'Running') {
-    Ok "SSH service is running"
-  } else {
-    Warn "SSH service not running. Start it manually or re-run as Administrator."
-  }
-}
+Start-Service sshd -ErrorAction SilentlyContinue
+Set-Service sshd -StartupType Automatic
+Ok "SSH service started and set to auto-start"
 
 # Install devtunnel CLI
 if (-not (Get-Command devtunnel -ErrorAction SilentlyContinue)) {
