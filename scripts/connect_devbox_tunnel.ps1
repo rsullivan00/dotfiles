@@ -21,9 +21,14 @@
 #>
 param(
   [string]$TunnelName = "devbox",
-  [string]$Username = $env:USERNAME,
+  [string]$Username,
   [switch]$TunnelOnly
 )
+
+# Default to domain\username for Windows domain accounts
+if (-not $Username) {
+  $Username = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+}
 
 $ErrorActionPreference = 'Stop'
 
