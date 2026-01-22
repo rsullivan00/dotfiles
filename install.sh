@@ -44,7 +44,10 @@ echo "Installing Python..."
 ./scripts/python.sh
 
 echo "Setting up neovim..."
-./scripts/neovim.sh
+./scripts/install_neovim.sh
+
+echo "Setting up WezTerm..."
+./scripts/install_wezterm.sh
 
 echo "Setting up git..."
 ./scripts/git.sh
