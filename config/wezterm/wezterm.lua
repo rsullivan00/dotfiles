@@ -44,6 +44,16 @@ if wezterm.target_triple:find("windows") then
   config.default_prog = { "pwsh.exe", "-NoLogo" }
 end
 
+-- SSH Domains (for devbox connections)
+-- Update remote_address to your devbox hostname
+config.ssh_domains = {
+  {
+    name = "devbox",
+    remote_address = "YOUR_DEVBOX_HOSTNAME",
+    username = os.getenv("USER") or os.getenv("USERNAME"),
+  },
+}
+
 -- Keybindings
 config.keys = {
   -- Ctrl+Shift+P for command palette (like VS Code)
@@ -51,6 +61,8 @@ config.keys = {
   -- Quick split panes
   { key = "|", mods = "CTRL|SHIFT", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   { key = "_", mods = "CTRL|SHIFT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  -- Connect to devbox (Ctrl+Shift+D)
+  { key = "d", mods = "CTRL|SHIFT", action = wezterm.action.SpawnTab({ DomainName = "devbox" }) },
 }
 
 return config

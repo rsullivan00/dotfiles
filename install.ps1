@@ -8,6 +8,7 @@
   - VS Code with vim extension
   - Neovim with LazyVim
   - WezTerm terminal
+  - SSHFS-Win for remote filesystem mounting
   - VsVim configuration
 
 .PARAMETER SkipVS
@@ -18,11 +19,15 @@
 
 .PARAMETER SkipWezTerm
   Skip WezTerm installation
+
+.PARAMETER SkipSSHFS
+  Skip SSHFS-Win installation
 #>
 param(
   [switch]$SkipVS,
   [switch]$SkipNeovim,
-  [switch]$SkipWezTerm
+  [switch]$SkipWezTerm,
+  [switch]$SkipSSHFS
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,6 +46,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
   if ($SkipVS) { $argList += '-SkipVS' }
   if ($SkipNeovim) { $argList += '-SkipNeovim' }
   if ($SkipWezTerm) { $argList += '-SkipWezTerm' }
+  if ($SkipSSHFS) { $argList += '-SkipSSHFS' }
   Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList
   exit 0
 }
@@ -77,6 +83,12 @@ if (-not $SkipNeovim) {
 if (-not $SkipWezTerm) {
   Info 'Running WezTerm setup...'
   & "$scriptDir\scripts\install_wezterm.ps1" -SkipElevation
+}
+
+# SSHFS-Win (for mounting remote filesystems)
+if (-not $SkipSSHFS) {
+  Info 'Running SSHFS-Win setup...'
+  & "$scriptDir\scripts\install_sshfs.ps1"
 }
 
 Write-Host ''
