@@ -44,13 +44,16 @@ if wezterm.target_triple:find("windows") then
   config.default_prog = { "pwsh.exe", "-NoLogo" }
 end
 
--- SSH Domains (for devbox connections)
--- Update remote_address to your devbox hostname
+-- SSH Domains (for devbox connections via tunnel)
+-- Requires tunnel to be running: devboxterm -TunnelOnly or the scheduled service
 config.ssh_domains = {
   {
     name = "devbox",
-    remote_address = "YOUR_DEVBOX_HOSTNAME",
-    username = os.getenv("USER") or os.getenv("USERNAME"),
+    remote_address = "localhost",
+    username = "sshuser",
+    ssh_option = {
+      identityfile = wezterm.home_dir .. "/.ssh/id_ed25519_devbox",
+    },
   },
 }
 
