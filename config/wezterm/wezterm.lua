@@ -61,7 +61,8 @@ end
 config.unix_domains = {
   {
     name = "devbox",
-    -- Connect to remote wezterm mux server via SSH
+    -- SSH as sshuser, then run wezterm proxy
+    -- Note: mux server must be running on devbox (wezterm-mux-server --daemonize)
     proxy_command = { "ssh", "-i", wezterm.home_dir .. "/.ssh/id_ed25519_devbox", "sshuser@localhost", "wezterm", "cli", "proxy" },
   },
 }
