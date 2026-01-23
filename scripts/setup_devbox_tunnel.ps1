@@ -110,6 +110,15 @@ if ($pubKey) {
   Ok "Set permissions on administrators_authorized_keys"
 }
 
+# Install WezTerm (for mux server - enables persistent sessions)
+if (-not (Get-Command wezterm -ErrorAction SilentlyContinue)) {
+  Info "Installing WezTerm (for persistent terminal sessions)..."
+  winget install --id wez.wezterm -e --accept-source-agreements --accept-package-agreements
+
+  # Refresh PATH
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+
 # Install devtunnel CLI
 if (-not (Get-Command devtunnel -ErrorAction SilentlyContinue)) {
   Info "Installing Dev Tunnels CLI..."

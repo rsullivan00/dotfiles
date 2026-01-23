@@ -3,7 +3,10 @@
 local map = vim.keymap.set
 
 -- Ctrl+P for fuzzy file search (like old fzf config)
-map("n", "<C-p>", "<cmd>Telescope find_files<cr>", { desc = "Find Files (Ctrl+P)" })
+-- Uses LazyVim's picker (works with Telescope, fzf-lua, or snacks.picker)
+map("n", "<C-p>", function()
+  Snacks.picker.files()
+end, { desc = "Find Files (Ctrl+P)" })
 
 -- 0 goes to first non-blank character instead of line start
 map("n", "0", "^", { desc = "Go to first non-blank character" })

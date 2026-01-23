@@ -44,18 +44,30 @@ if wezterm.target_triple:find("windows") then
   config.default_prog = { "pwsh.exe", "-NoLogo" }
 end
 
--- SSH Domains (for devbox connections via tunnel)
--- Requires tunnel to be running: devboxterm -TunnelOnly or the scheduled service
-config.ssh_domains = {
+-- SSH Domains (basic SSH, no persistence)
+-- config.ssh_domains = {
+--   {
+--     name = "devbox-ssh",
+--     remote_address = "localhost",
+--     username = "sshuser",
+--     ssh_option = {
+--       identityfile = wezterm.home_dir .. "/.ssh/id_ed25519_devbox",
+--     },
+--   },
+-- }
+
+-- Unix/Mux Domain (persistent sessions like tmux)
+-- Requires wezterm installed on devbox and tunnel running
+config.unix_domains = {
   {
     name = "devbox",
-    remote_address = "localhost",
-    username = "sshuser",
-    ssh_option = {
-      identityfile = wezterm.home_dir .. "/.ssh/id_ed25519_devbox",
-    },
+    -- Connect to remote wezterm mux server via SSH
+    proxy_command = { "ssh", "-i", wezterm.home_dir .. "/.ssh/id_ed25519_devbox", "sshuser@localhost", "wezterm", "cli", "proxy" },
   },
 }
+
+-- Default to local domain, use Ctrl+Shift+D to connect to devbox mux
+config.default_domain = "local"
 
 -- Keybindings
 config.keys = {
@@ -64,8 +76,10 @@ config.keys = {
   -- Quick split panes
   { key = "|", mods = "CTRL|SHIFT", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   { key = "_", mods = "CTRL|SHIFT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
-  -- Connect to devbox (Ctrl+Shift+D)
+  -- Connect to devbox mux (Ctrl+Shift+D) - persistent sessions like tmux
   { key = "d", mods = "CTRL|SHIFT", action = wezterm.action.SpawnTab({ DomainName = "devbox" }) },
+  -- Attach to existing devbox mux session (Ctrl+Shift+A)
+  { key = "a", mods = "CTRL|SHIFT", action = wezterm.action.AttachDomain("devbox") },
 }
 
 return config
