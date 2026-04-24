@@ -17,6 +17,29 @@ if [ ! -f $HOME/.asdfrc ]; then
   ln -s $currentdir/asdfrc $HOME/.asdfrc
 fi
 
+# Claude Code config + native Rust statusline
+mkdir -p $HOME/.claude
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "Installing rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+  . "$HOME/.cargo/env"
+fi
+echo "Building statusline (cargo build --release)..."
+(cd "$currentdir/.claude/statusline" && cargo build --release)
+cp "$currentdir/.claude/statusline/target/release/statusline" "$HOME/.claude/statusline"
+# NOTE: The repo's settings.json points at `statusline.exe` (Windows binary).
+# On Unix the binary is just `statusline`, so write a Unix-flavored file
+# instead of symlinking the repo version.
+cat > "$HOME/.claude/settings.json" <<EOF
+{
+  "model": "opus[1m]",
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/statusline"
+  }
+}
+EOF
+
 if [ -x "$(command -v apt)" ]; then
   sudo apt update
   sudo apt install -y curl git build-essential zlib1g-dev libssl-dev libffi-dev silversearch-ag unzip

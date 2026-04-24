@@ -22,12 +22,16 @@
 
 .PARAMETER SkipSSHFS
   Skip SSHFS-Win installation
+
+.PARAMETER SkipClaude
+  Skip Claude Code config symlink setup
 #>
 param(
   [switch]$SkipVS,
   [switch]$SkipNeovim,
   [switch]$SkipWezTerm,
-  [switch]$SkipSSHFS
+  [switch]$SkipSSHFS,
+  [switch]$SkipClaude
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,6 +51,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
   if ($SkipNeovim) { $argList += '-SkipNeovim' }
   if ($SkipWezTerm) { $argList += '-SkipWezTerm' }
   if ($SkipSSHFS) { $argList += '-SkipSSHFS' }
+  if ($SkipClaude) { $argList += '-SkipClaude' }
   Start-Process -FilePath powershell.exe -Verb RunAs -ArgumentList $argList
   exit 0
 }
@@ -89,6 +94,12 @@ if (-not $SkipWezTerm) {
 if (-not $SkipSSHFS) {
   Info 'Running SSHFS-Win setup...'
   & "$scriptDir\scripts\install_sshfs.ps1"
+}
+
+# Claude Code config (symlink settings.json + statusline)
+if (-not $SkipClaude) {
+  Info 'Running Claude Code config setup...'
+  & "$scriptDir\scripts\install_claude.ps1"
 }
 
 Write-Host ''
